@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Inventory App</string>
+    <string name="action_insert_dummy_data">Insert dummy data</string>
+    <string name="action_delete_all_entries">delte entire inventory</string>
+    <string name="action_save">save</string>
+    <string name="action_delete">delete</string>
+    <string name="editor_activity_title_edit_item">Edit item</string>
+    <string name="item_name">Name</string>
+    <string name="item_price">Price</string>
+    <string name="hint_item_price">Price per item</string>
+    <string name="unit_item_price">€</string>
+    <string name="hint_item_name">item name</string>
+    <string name="item_quantity">Quantity</string>
+    <string name="unit_item_quantity">pcs.</string>
+    <string name="hint_item_quantity">Quantity in Stock</string>
+    <string name="editor_activity_title_new_item">Add new item</string>
+    <string name="editor_insert_item_failed">Aaaahh! No working! Failure!</string>
+    <string name="editor_insert_item_successful">succesfully added to inventory list</string>
+    <string name="editor_update_item_failed">Update unsuccessful</string>
+    <string name="editor_update_item_successful">Update successful</string>
+    <string name="unsaved_changes_dialog_msg">here are unsaved changes that will be lost</string>
+    <string name="discard">discard</string>
+    <string name="keep_editing">keep editing</string>
+    <string name="delete_dialog_msg">Delete this item?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="editor_delete_item_failed">Error when trying to delete</string>
+    <string name="editor_delete_item_successful">Deletion complete</string>
+    <string name="empty_list_text">No Inventory. You can add items by clicking in the bottom right corner or using the menu.</string>
+</resources>
