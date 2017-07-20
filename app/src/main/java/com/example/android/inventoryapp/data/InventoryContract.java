@@ -39,32 +39,19 @@ public class InventoryContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_INVENTORY;
 
-        /** Table constants for table: inventory **/
+        /**
+         * Table constants for table: inventory
+         **/
 
-        public final static String TABLE_NAME = "inventory";
+        public final static String TABLE_NAME = "stock";
         public final static String _ID = BaseColumns._ID;
-        public final static String COLUMN_ITEM_NAME ="name";
-        public final static String COLUMN_ITEM_QUANTITIY ="quantity";
-        public final static String COLUMN_ITEM_PRICE ="price";
+        public final static String COLUMN_ITEM_NAME = "name";
+        public final static String COLUMN_ITEM_QUANTITY = "quantity";
+        public final static String COLUMN_ITEM_PRICE = "price";
+        public final static String COLUMN_ITEM_IMAGE = "image";
+        public final static String COLUMN_SUPPLIER_NAME = "supplier";
+        public final static String COLUMN_SUPPLIER_MAIL = "email";
 
-        /**
-         * Returns whether or not the given quantity is valid
-         */
-        public static boolean isValidQty(int qty) {
-            if (qty >= 0) {
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * Returns whether or not the given price is valid
-         */
-        public static boolean isValidPrice(Integer price) {
-            if (price >= 0) {
-                return true;
-            }
-            return false;        }
     }
 
 }

@@ -13,7 +13,7 @@ import android.util.Log;
 
 import static com.example.android.inventoryapp.data.InventoryContract.InventoryItem.COLUMN_ITEM_NAME;
 import static com.example.android.inventoryapp.data.InventoryContract.InventoryItem.COLUMN_ITEM_PRICE;
-import static com.example.android.inventoryapp.data.InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITIY;
+import static com.example.android.inventoryapp.data.InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY;
 
 /**
  * Created by SLLegendre on 7/17/2017.
@@ -187,8 +187,8 @@ public class InventoryProvider extends ContentProvider {
         }
 
         // Check that the qty is valid
-        Integer qty = values.getAsInteger(COLUMN_ITEM_QUANTITIY);
-        if (qty == null || !InventoryContract.InventoryItem.isValidQty(qty)) {
+        Integer qty = values.getAsInteger(COLUMN_ITEM_QUANTITY);
+        if (qty == null || !InventoryDbHelper.isValidQty(qty)) {
             throw new IllegalArgumentException("Item requires valid quantity");
         }
 
@@ -197,6 +197,8 @@ public class InventoryProvider extends ContentProvider {
         if (price == null || price < 0) {
             throw new IllegalArgumentException("Item requires valid price");
         }
+
+        // TODO: Check inputs for supplier, email and image
 
         // Get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
@@ -254,16 +256,16 @@ public class InventoryProvider extends ContentProvider {
         // check that the value is valid.
         if (values.containsKey(InventoryContract.InventoryItem.COLUMN_ITEM_PRICE)) {
             Integer price = values.getAsInteger(InventoryContract.InventoryItem.COLUMN_ITEM_PRICE);
-            if (price == null || !InventoryContract.InventoryItem.isValidPrice(price)) {
+            if (price == null || !InventoryDbHelper.isValidPrice(price)) {
                 throw new IllegalArgumentException("Item requires a valid price");
             }
         }
 
         // If the {@link InventoryItem#COLUMN_ITEM_QUANTITY} key is present,
         // check that the value is valid.
-        if (values.containsKey(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITIY)) {
-            Integer qty = values.getAsInteger(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITIY);
-            if (qty == null || !InventoryContract.InventoryItem.isValidQty(qty)) {
+        if (values.containsKey(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY)) {
+            Integer qty = values.getAsInteger(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY);
+            if (qty == null || !InventoryDbHelper.isValidQty(qty)) {
                 throw new IllegalArgumentException("Item requires a valid quantity");
             }
         }

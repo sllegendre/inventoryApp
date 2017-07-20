@@ -14,7 +14,7 @@
     <string name="unit_item_quantity">pcs.</string>
     <string name="hint_item_quantity">Quantity in Stock</string>
     <string name="editor_activity_title_new_item">Add new item</string>
-    <string name="editor_insert_item_failed">Aaaahh! No working! Failure!</string>
+    <string name="editor_insert_item_failed">Inserting the item failed</string>
     <string name="editor_insert_item_successful">succesfully added to inventory list</string>
     <string name="editor_update_item_failed">Update unsuccessful</string>
     <string name="editor_update_item_successful">Update successful</string>
@@ -27,4 +27,13 @@
     <string name="editor_delete_item_failed">Error when trying to delete</string>
     <string name="editor_delete_item_successful">Deletion complete</string>
     <string name="empty_list_text">No Inventory. You can add items by clicking in the bottom right corner or using the menu.</string>
+    <string name="action_order">Order</string>
+    <string name="action_plus">+</string>
+    <string name="action_minus">-</string>
+    <string name="item_supplier">Supplier</string>
+    <string name="hint_item_supplier_name">Supplier name</string>
+    <string name="item_supplier_mail">Contact</string>
+    <string name="hint_item_supplier_mail">supplier@example.com</string>
+    <string name="action_sale">Sale</string>
+    <string name="action_add_image">Add image</string>
 </resources>

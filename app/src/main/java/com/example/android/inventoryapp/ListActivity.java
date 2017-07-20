@@ -24,13 +24,24 @@ import com.example.android.inventoryapp.data.InventoryContract;
 public class ListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    /** Tag for the log messages */
+    /**
+     * Tag for the log messages
+     */
     public static final String LOG_TAG = ListActivity.class.getSimpleName();
 
     /**
      * Identifier for the data loader
      */
     private static final int INVENTORY_LOADER = 0;
+
+    // Define a projection that specifies the columns from the table we care about.
+    public final String[] RELEVANT_COLS = {
+            InventoryContract.InventoryItem._ID,
+            InventoryContract.InventoryItem.COLUMN_ITEM_NAME,
+            InventoryContract.InventoryItem.COLUMN_ITEM_PRICE,
+            InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY,
+            InventoryContract.InventoryItem.COLUMN_ITEM_IMAGE
+    };
 
     /**
      * Adapter for the ListView
@@ -70,6 +81,7 @@ public class ListActivity extends AppCompatActivity implements
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 // Create new intent to go to {@link EditorActivity}
+                Log.v(LOG_TAG, "the OnItemClick method was executed");
                 Intent intent = new Intent(ListActivity.this, EditorActivity.class);
 
                 // Form the content URI that represents the specific item that was clicked on,
@@ -97,7 +109,9 @@ public class ListActivity extends AppCompatActivity implements
         ContentValues values = new ContentValues();
         values.put(InventoryContract.InventoryItem.COLUMN_ITEM_NAME, "Flux Capicitator");
         values.put(InventoryContract.InventoryItem.COLUMN_ITEM_PRICE, 9000);
-        values.put(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITIY, 80);
+        values.put(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY, 80);
+        values.put(InventoryContract.InventoryItem.COLUMN_SUPPLIER_NAME, "Kermit the Frog");
+        values.put(InventoryContract.InventoryItem.COLUMN_SUPPLIER_MAIL, "kermit@frogpond.com");
 
         // Insert a new row into the provider using the ContentResolver.
         Uri newUri = getContentResolver().insert(InventoryContract.InventoryItem.CONTENT_URI, values);
@@ -139,13 +153,9 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
         // Define a projection that specifies the columns from the table we care about.
-        String[] projection = {
-                InventoryContract.InventoryItem._ID,
-                InventoryContract.InventoryItem.COLUMN_ITEM_NAME,
-                InventoryContract.InventoryItem.COLUMN_ITEM_PRICE,
-                InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITIY
-        };
+        String[] projection = RELEVANT_COLS;
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context
