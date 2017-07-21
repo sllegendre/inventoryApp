@@ -27,7 +27,7 @@
     <string name="editor_delete_item_failed">Error when trying to delete</string>
     <string name="editor_delete_item_successful">Deletion complete</string>
     <string name="empty_list_text">No Inventory. You can add items by clicking in the bottom right corner or using the menu.</string>
-    <string name="action_order">Order</string>
+    <string name="action_order">Order More</string>
     <string name="action_plus">+</string>
     <string name="action_minus">-</string>
     <string name="item_supplier">Supplier</string>
