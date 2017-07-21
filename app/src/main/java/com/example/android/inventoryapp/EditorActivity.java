@@ -251,8 +251,9 @@ public class EditorActivity extends AppCompatActivity implements
 
     /**
      * Get user input from editor and save item into database.
+     * Returns whether or not I should finish afterwards
      */
-    private void saveItem() {
+    private boolean saveItem() {
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String nameString = mNameEditText.getText().toString().trim();
@@ -261,86 +262,115 @@ public class EditorActivity extends AppCompatActivity implements
         String supplierNameString = mSupplierName.getText().toString().trim();
         String supplierMailString = mSupplierMail.getText().toString().trim();
 
-
         // Check if this is supposed to be a new item
         // and check if all the fields in the editor are blank
         if (mCurrentItemUri == null &&
                 TextUtils.isEmpty(nameString) && TextUtils.isEmpty(priceString) &&
-                TextUtils.isEmpty(quantityString)) {
+                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(nameString) && TextUtils.isEmpty(supplierMailString)
+                && TextUtils.isEmpty(supplierNameString)) {
             // Since no fields were modified, we can return early without creating a new item.
             // No need to create ContentValues and no need to do any ContentProvider operations.
-            return;
+            return true;
         }
+
+        // Check the user input - if it is invalid show toast
+        boolean isValidUserInput = true;
 
         // Create a ContentValues object where column names are the keys,
         // and item attributes from the editor are the values.
         ContentValues values = new ContentValues();
+
+        // Check the text inputs
+        if (TextUtils.isEmpty(nameString) || TextUtils.isEmpty(supplierMailString)
+                || TextUtils.isEmpty(supplierNameString)) {
+            isValidUserInput = false;
+        }
         values.put(InventoryContract.InventoryItem.COLUMN_ITEM_NAME, nameString);
         values.put(InventoryItem.COLUMN_SUPPLIER_NAME, supplierNameString);
+        values.put(InventoryItem.COLUMN_SUPPLIER_MAIL, supplierMailString);
 
         // Check if the supplier mail is valid
         String tmpMail = "no e-mail provided";
         if (!TextUtils.isEmpty(supplierMailString) &&
                 InventoryDbHelper.isValidEmail(supplierMailString)) {
             tmpMail = supplierMailString;
+        } else {
+            isValidUserInput = false;
         }
         values.put(InventoryItem.COLUMN_SUPPLIER_MAIL, tmpMail);
 
         // If the quantity is not provided by the user, don't try to parse the string into an
-        // integer value. Use 0 by default.
+        // integer value. Use 0 by default to be absolutely safe and prompt user to make a change.
         int qty = 0;
         if (!TextUtils.isEmpty(quantityString)) {
             qty = Integer.parseInt(quantityString);
+        }else{
+            isValidUserInput=false;
         }
         values.put(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY, qty);
 
         // If the price is not provided by the user, don't try to parse the string into an
-        // integer value. A price of 0 could induces crazy losses though, using MAX_VALUE instead.
-        int price = Integer.MAX_VALUE;
+        // integer value. A price of 0 could induces crazy losses though, using 200000 instead
+        // Promt user to make a change
+        int price = 200000;
         if (!TextUtils.isEmpty(priceString)) {
             price = Integer.parseInt(priceString);
+        }else{
+            isValidUserInput=false;
         }
         values.put(InventoryContract.InventoryItem.COLUMN_ITEM_PRICE, price);
 
-        // If there has been an image added add it to values
+        // If there has been an image added, add it to values
         if (mItemPicture != null) {
             values.put(InventoryItem.COLUMN_ITEM_IMAGE, imageByteArray);
         }
 
-        // Determine if this is a new or existing item by checking if mCurrentItemUri is null or not
-        if (mCurrentItemUri == null) {
-            // This is a NEW item, so insert a new item into the provider,
-            // returning the content URI for the new item.
-            Uri newUri = getContentResolver().insert(InventoryContract.InventoryItem.CONTENT_URI, values);
+        if (!isValidUserInput) {
+            Toast.makeText(this, "please ensure valid input", Toast.LENGTH_SHORT).show();
+            return false;
+        }else {
 
-            // Show a toast message depending on whether or not the insertion was successful.
-            if (newUri == null) {
-                // If the new content URI is null, then there was an error with insertion.
-                Toast.makeText(this, getString(R.string.editor_insert_item_failed),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the insertion was successful and we can display a toast.
-                Toast.makeText(this, nameString + " " + getString(R.string.editor_insert_item_successful),
-                        Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            // Otherwise this is an EXISTING item, so update the item with content URI: mCurrentItemUri
-            // and pass in the new ContentValues. Pass in null for the selection and selection args
-            // because mCurrentItemUri will already identify the correct row in the database that
-            // we want to modify.
-            int rowsAffected = getContentResolver().update(mCurrentItemUri, values, null, null);
+            // Determine if this is a new or existing item by checking if mCurrentItemUri is null or not
+            if (mCurrentItemUri == null) {
+                // This is a NEW item, so insert a new item into the provider,
+                // returning the content URI for the new item.
+                Uri newUri = getContentResolver().insert(InventoryContract.InventoryItem.CONTENT_URI, values);
 
-            // Show a toast message depending on whether or not the update was successful.
-            if (rowsAffected == 0) {
-                // If no rows were affected, then there was an error with the update.
-                Toast.makeText(this, getString(R.string.editor_update_item_failed),
-                        Toast.LENGTH_SHORT).show();
+                // Show a toast message depending on whether or not the insertion was successful.
+                if (newUri == null) {
+                    // If the new content URI is null, then there was an error with insertion.
+                    Toast.makeText(this, getString(R.string.editor_insert_item_failed),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    // Otherwise, the insertion was successful and we can display a toast.
+                    Toast.makeText(this, nameString + " " + getString(R.string.editor_insert_item_successful),
+                            Toast.LENGTH_SHORT).show();
+                }
             } else {
-                // Otherwise, the update was successful and we can display a toast.
-                Toast.makeText(this, getString(R.string.editor_update_item_successful),
-                        Toast.LENGTH_SHORT).show();
+                // Otherwise this is an EXISTING item, so update the item with content URI: mCurrentItemUri
+                // and pass in the new ContentValues. Pass in null for the selection and selection args
+                // because mCurrentItemUri will already identify the correct row in the database that
+                // we want to modify.
+                int rowsAffected = getContentResolver().update(mCurrentItemUri, values, null, null);
+
+                // Show a toast message depending on whether or not the update was successful.
+                if (rowsAffected == 0) {
+                    // If no rows were affected, then there was an error with the update.
+                    Toast.makeText(this, getString(R.string.editor_update_item_failed),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    // Otherwise, the update was successful and we can display a toast.
+                    Toast.makeText(this, getString(R.string.editor_update_item_successful),
+                            Toast.LENGTH_SHORT).show();
+                }
             }
+            return true;
         }
+    }
+
+    // Checks if the user has inputted reasonable info for saving into the database
+    private boolean checkValidUserInput() {
+        return true;
     }
 
     @Override
@@ -373,9 +403,9 @@ public class EditorActivity extends AppCompatActivity implements
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 // Save item to database
-                saveItem();
+                boolean shouldAppFinish = saveItem();
                 // Exit activity
-                finish();
+                if(shouldAppFinish){finish();}
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
