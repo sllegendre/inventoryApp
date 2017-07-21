@@ -16,8 +16,6 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
-import static android.R.attr.id;
-
 /**
  * Created by SLLegendre on 7/16/2017.
  */
@@ -62,28 +60,33 @@ public class InventoryCursorAdapter extends CursorAdapter {
      */
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
-        // Get the unique resource identifier for this item
-        final Uri currentItemUri = ContentUris.withAppendedId(InventoryContract.InventoryItem.CONTENT_URI, id);
 
         // Find individual views that we want to modify in the list item layout
         TextView nameTextView = (TextView) view.findViewById(R.id.item_name);
         TextView priceTextView = (TextView) view.findViewById(R.id.item_price);
+        TextView itemPriceUnitTextView = (TextView) view.findViewById(R.id.item_quantity_units);
         final TextView qtyTextView = (TextView) view.findViewById(R.id.item_quantity);
 
         // Find the columns of item attributes that we're interested in
+        int idColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryItem._ID);
         int nameColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryItem.COLUMN_ITEM_NAME);
         int priceColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryItem.COLUMN_ITEM_PRICE);
         int quantityColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY);
 
-        // Read the item attributes from the Cursor for the current tiem
+        // Read the item attributes from the Cursor for the current item
+        int itemId = cursor.getInt(idColumnIndex);
         String itemName = cursor.getString(nameColumnIndex);
         int itemPrice = cursor.getInt(priceColumnIndex);
         final int itemQty = cursor.getInt(quantityColumnIndex);
+
+        // Get the unique resource identifier for this item
+        final Uri currentItemUri = ContentUris.withAppendedId(InventoryContract.InventoryItem.CONTENT_URI, itemId);
 
         // Update the TextViews with the attributes for the current item
         nameTextView.setText(itemName);
         priceTextView.setText(String.valueOf(itemPrice));
         qtyTextView.setText(String.valueOf(itemQty));
+        itemPriceUnitTextView.setText(R.string.unit_item_quantity);
 
         // Set onClick listener on the sale button and give that bad boy a name
         Button saleButton = (Button) view.findViewById(R.id.sale_button);
@@ -96,8 +99,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
                 ContentResolver contentResolver = v.getContext().getContentResolver();
                 ContentValues values = new ContentValues();
                 if (quantity >= 1) {
-                    quantity = quantity-1;
-                    values.put(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY, 999);
+                    values.put(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY, --quantity);
                     contentResolver.update(
                             currentItemUri,
                             values,

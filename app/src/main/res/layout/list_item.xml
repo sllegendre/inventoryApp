@@ -76,7 +76,7 @@
                 android:id="@+id/item_quantity"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:gravity="bottom"
                 android:textAppearance="?android:textAppearanceMedium"
                 android:textColor="@android:color/white"
@@ -96,11 +96,11 @@
         </LinearLayout>
 
         <Button
-            android:focusable="false"
             android:id="@+id/sale_button"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:focusable="false"
             tools:text="@string/action_sale" />
     </LinearLayout>
 </LinearLayout>

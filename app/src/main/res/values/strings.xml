@@ -11,7 +11,7 @@
     <string name="unit_item_price">€</string>
     <string name="hint_item_name">item name</string>
     <string name="item_quantity">Quantity</string>
-    <string name="unit_item_quantity">pcs.</string>
+    <string name="unit_item_quantity"># pcs.</string>
     <string name="hint_item_quantity">Quantity in Stock</string>
     <string name="editor_activity_title_new_item">Add new item</string>
     <string name="editor_insert_item_failed">Inserting the item failed</string>
