@@ -61,14 +61,14 @@ public class InventoryCursorAdapter extends CursorAdapter {
      *                correct row.
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, Cursor cursor) {
         // Get the unique resource identifier for this item
         final Uri currentItemUri = ContentUris.withAppendedId(InventoryContract.InventoryItem.CONTENT_URI, id);
 
         // Find individual views that we want to modify in the list item layout
         TextView nameTextView = (TextView) view.findViewById(R.id.item_name);
         TextView priceTextView = (TextView) view.findViewById(R.id.item_price);
-        TextView qtyTextView = (TextView) view.findViewById(R.id.item_quantity);
+        final TextView qtyTextView = (TextView) view.findViewById(R.id.item_quantity);
 
         // Find the columns of item attributes that we're interested in
         int nameColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryItem.COLUMN_ITEM_NAME);
@@ -92,12 +92,20 @@ public class InventoryCursorAdapter extends CursorAdapter {
             @Override
             public void onClick(View v) {
                 // Get a content resolver
-                int quantity = itemQty; //TODO find out what java madness is happening here
+                int quantity = itemQty;
                 ContentResolver contentResolver = v.getContext().getContentResolver();
                 ContentValues values = new ContentValues();
                 if (quantity >= 1) {
-                    values.put(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY, Integer.toString(quantity--));
-                    contentResolver.update(currentItemUri, values, null, null);
+                    quantity = quantity-1;
+                    values.put(InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY, 999);
+                    contentResolver.update(
+                            currentItemUri,
+                            values,
+                            null,
+                            null
+                    );
+                    context.getContentResolver().notifyChange(currentItemUri, null);
+
                 } else {
                     // Tell the user, they cannot do dat
                     Toast.makeText(v.getContext(), "Quantity cannot be negative", Toast.LENGTH_SHORT).show();

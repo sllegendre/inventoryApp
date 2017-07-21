@@ -46,7 +46,7 @@ public class ListActivity extends AppCompatActivity implements
     /**
      * Adapter for the ListView
      */
-    InventoryCursorAdapter mCursorAdapter;
+    public static InventoryCursorAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +117,7 @@ public class ListActivity extends AppCompatActivity implements
         Uri newUri = getContentResolver().insert(InventoryContract.InventoryItem.CONTENT_URI, values);
     }
 
+
     /**
      * Helper method to delete all items in the database.
      */
@@ -176,4 +177,5 @@ public class ListActivity extends AppCompatActivity implements
     public void onLoaderReset(Loader<Cursor> loader) {
         mCursorAdapter.swapCursor(null);
     }
+
 }

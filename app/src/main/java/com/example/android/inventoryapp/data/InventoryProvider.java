@@ -14,6 +14,7 @@ import android.util.Log;
 import static com.example.android.inventoryapp.data.InventoryContract.InventoryItem.COLUMN_ITEM_NAME;
 import static com.example.android.inventoryapp.data.InventoryContract.InventoryItem.COLUMN_ITEM_PRICE;
 import static com.example.android.inventoryapp.data.InventoryContract.InventoryItem.COLUMN_ITEM_QUANTITY;
+import static com.example.android.inventoryapp.data.InventoryContract.InventoryItem.TABLE_NAME;
 
 /**
  * Created by SLLegendre on 7/17/2017.
@@ -21,13 +22,19 @@ import static com.example.android.inventoryapp.data.InventoryContract.InventoryI
 
 public class InventoryProvider extends ContentProvider {
 
-    /** Tag for the log messages */
+    /**
+     * Tag for the log messages
+     */
     public static final String LOG_TAG = InventoryProvider.class.getSimpleName();
 
-    /** URI matcher code for the content URI for the entire table */
+    /**
+     * URI matcher code for the content URI for the entire table
+     */
     private static final int INVENTORY = 100;
 
-    /** URI matcher code for the content URI for a single item in the inventory table */
+    /**
+     * URI matcher code for the content URI for a single item in the inventory table
+     */
     private static final int INVENTORY_ID = 101;
 
     /**
@@ -58,7 +65,9 @@ public class InventoryProvider extends ContentProvider {
         sUriMatcher.addURI(InventoryContract.CONTENT_AUTHORITY, InventoryContract.PATH_INVENTORY + "/#", INVENTORY_ID);
     }
 
-    /** Database helper object */
+    /**
+     * Database helper object
+     */
     private InventoryDbHelper mDbHelper;
 
     @Override
@@ -96,7 +105,7 @@ public class InventoryProvider extends ContentProvider {
                 // arguments that will fill in the "?". Since we have 1 question mark in the
                 // selection, we have 1 String in the selection arguments' String array.
                 selection = InventoryContract.InventoryItem._ID + "=?";
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
 
                 // This will perform a query on the inventory table where the _id equals 3 to return a
                 // Cursor containing that row of the table.
@@ -158,7 +167,7 @@ public class InventoryProvider extends ContentProvider {
             case INVENTORY_ID:
                 // Delete a single row given by the ID in the URI
                 selection = InventoryContract.InventoryItem._ID + "=?";
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(InventoryContract.InventoryItem.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
@@ -222,6 +231,7 @@ public class InventoryProvider extends ContentProvider {
     public int update(Uri uri, ContentValues contentValues, String selection,
                       String[] selectionArgs) {
         final int match = sUriMatcher.match(uri);
+        Log.v(LOG_TAG, "The update method was called with URI:" + uri.toString() + " and values: " + contentValues.toString());
         switch (match) {
             case INVENTORY:
                 return updateItem(uri, contentValues, selection, selectionArgs);
@@ -230,7 +240,7 @@ public class InventoryProvider extends ContentProvider {
                 // so we know which row to update. Selection will be "_id=?" and selection
                 // arguments will be a String array containing the actual ID.
                 selection = InventoryContract.InventoryItem._ID + "=?";
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updateItem(uri, contentValues, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
@@ -279,6 +289,7 @@ public class InventoryProvider extends ContentProvider {
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
         // Perform the update on the database and get the number of rows affected
+        Log.v(LOG_TAG, "Trying to update: table: " + TABLE_NAME.toString() + " values: " + values.toString() + " selection: " + selection.toString() + " selectionArgs: " + selectionArgs.toString());
         int rowsUpdated = database.update(InventoryContract.InventoryItem.TABLE_NAME, values, selection, selectionArgs);
 
         // If 1 or more rows were updated, then notify all listeners that the data at the
@@ -288,6 +299,7 @@ public class InventoryProvider extends ContentProvider {
         }
 
         // Return the number of rows updated
+        Log.v(LOG_TAG, rowsUpdated + " of rows updated");
         return rowsUpdated;
     }
 

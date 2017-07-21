@@ -9,10 +9,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -71,14 +73,15 @@ public class EditorActivity extends AppCompatActivity implements
     private EditText mSupplierMail;
 
     // Buttons
-    private Button mIncreaseQuantiyBtn;
-    private Button mDecreaseQuantiyBtn;
+    private Button mIncreaseQuantityBtn;
+    private Button mDecreaseQuantityBtn;
     private Button mOrderButton;
     private Button mDeleteButton;
     private Button mImageButton;
 
     // L'image
     private ImageView mItemPicture;
+    byte[] imageByteArray = null;
 
     /**
      * f Boolean flag that keeps track of whether the item has been edited (true) or not (false)
@@ -118,8 +121,8 @@ public class EditorActivity extends AppCompatActivity implements
         mItemPicture = (ImageView) findViewById(R.id.image_item);
 
         // Les Boutons
-        mDecreaseQuantiyBtn = (Button) findViewById(R.id.decrease_quantity_single_item);
-        mIncreaseQuantiyBtn = (Button) findViewById(R.id.increase_quantity_single_item);
+        mDecreaseQuantityBtn = (Button) findViewById(R.id.decrease_quantity_single_item);
+        mIncreaseQuantityBtn = (Button) findViewById(R.id.increase_quantity_single_item);
         mOrderButton = (Button) findViewById(R.id.order_single_item);
         mDeleteButton = (Button) findViewById(R.id.delete_single_item);
         mImageButton = (Button) findViewById(R.id.add_image_button);
@@ -135,26 +138,27 @@ public class EditorActivity extends AppCompatActivity implements
         mSupplierName.setOnTouchListener(mTouchListener);
 
         // Setup onClick listeners for the buttons
-        mDecreaseQuantiyBtn.setOnClickListener(new View.OnClickListener() {
+        mIncreaseQuantityBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 changeQuantity(1);
             }
         });
 
-        mImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO
-            }
-        });
-
-        mDecreaseQuantiyBtn.setOnClickListener(new View.OnClickListener() {
+        mDecreaseQuantityBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 changeQuantity(-1);
             }
         });
+
+        mImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dispatchTakePictureIntent();
+            }
+        });
+
 
         mOrderButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,6 +204,18 @@ public class EditorActivity extends AppCompatActivity implements
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    // Get the picture back, that was just taken, display it and prepare it for storage
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mItemPicture.setImageBitmap(imageBitmap); //Show immediately despite not in db yet
+            imageByteArray = InventoryDbHelper.convertBitmapToByteArray(imageBitmap); // make blob-ready
+            mItemHasChanged = true; // Don't forget to save
         }
     }
 
@@ -285,6 +301,11 @@ public class EditorActivity extends AppCompatActivity implements
             price = Integer.parseInt(priceString);
         }
         values.put(InventoryContract.InventoryItem.COLUMN_ITEM_PRICE, price);
+
+        // If there has been an image added add it to values
+        if (mItemPicture != null) {
+            values.put(InventoryItem.COLUMN_ITEM_IMAGE, imageByteArray);
+        }
 
         // Determine if this is a new or existing item by checking if mCurrentItemUri is null or not
         if (mCurrentItemUri == null) {
@@ -444,16 +465,35 @@ public class EditorActivity extends AppCompatActivity implements
             int nameColumnIndex = cursor.getColumnIndex(InventoryItem.COLUMN_ITEM_NAME);
             int priceColumnIndex = cursor.getColumnIndex(InventoryItem.COLUMN_ITEM_PRICE);
             int quantityColumnIndex = cursor.getColumnIndex(InventoryItem.COLUMN_ITEM_QUANTITY);
+            int imageColumnIndex = cursor.getColumnIndex(InventoryItem.COLUMN_ITEM_IMAGE);
+            int supplierNameColumnIndex = cursor.getColumnIndex(InventoryItem.COLUMN_SUPPLIER_NAME);
+            int supplierMailColumnIndex = cursor.getColumnIndex(InventoryItem.COLUMN_SUPPLIER_MAIL);
 
             // Extract out the value from the Cursor for the given column index
             String name = cursor.getString(nameColumnIndex);
+            String supplierName = cursor.getString(supplierNameColumnIndex);
+            String supplierMail = cursor.getString(supplierMailColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
 
+            // Try to get l'image if there is one
+            try {
+                Bitmap picture = InventoryDbHelper.convertByteArrayToBitmap(cursor.getBlob(imageColumnIndex));
+                mItemPicture.setImageBitmap(picture);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                // Use default image
+                mItemPicture.setImageDrawable(ContextCompat.getDrawable(EditorActivity.this, R.drawable.ic_empty_shelter));
+            }
+
+
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
+            mSupplierName.setText(supplierName);
+            mSupplierMail.setText(supplierMail);
             mPriceEditText.setText(Integer.toString(price));
             mQuantityEditText.setText(Integer.toString(quantity));
+
 
         }
     }
