@@ -510,6 +510,7 @@ public class EditorActivity extends AppCompatActivity implements
             try {
                 Bitmap picture = InventoryDbHelper.convertByteArrayToBitmap(cursor.getBlob(imageColumnIndex));
                 mItemPicture.setImageBitmap(picture);
+                imageByteArray = cursor.getBlob(imageColumnIndex);
             } catch (NullPointerException e) {
                 e.printStackTrace();
                 // Use default image
